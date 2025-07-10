@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Personal Finance Tracker</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -33,6 +34,26 @@
             margin-bottom: 2rem;
             text-align: center;
             box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+            position: relative;
+        }
+
+        .settings-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .settings-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: rotate(90deg);
         }
 
         .header h1 {
@@ -330,6 +351,13 @@
                 font-size: 1.4rem;
             }
 
+            .settings-btn {
+                top: 0.5rem;
+                right: 0.5rem;
+                padding: 0.4rem;
+                font-size: 1rem;
+            }
+
             .welcome-message {
                 font-size: 1rem;
                 margin-bottom: 0.8rem;
@@ -451,11 +479,32 @@
             margin-bottom: 1.5rem;
             color: #333;
         }
+
+        .settings-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .settings-section h4 {
+            margin-bottom: 1rem;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .settings-section p {
+            margin-bottom: 1rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
+            <button class="settings-btn" onclick="showSettingsModal()" title="Settings">⚙️</button>
             <h1>💰 Personal Finance Tracker</h1>
             <div id="welcomeMessage" class="welcome-message"></div>
             <div class="month-selector">
@@ -675,6 +724,42 @@
         </div>
     </div>
 
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="hideModal('settingsModal')">&times;</button>
+            <h3>⚙️ Settings</h3>
+            
+            <div class="settings-section">
+                <h4>Personal Information</h4>
+                <div class="form-group">
+                    <label>Your Name</label>
+                    <input type="text" id="settingsUserName" placeholder="Enter your name">
+                </div>
+                <button class="btn btn-secondary" onclick="updateUserName()">Update Name</button>
+            </div>
+
+            <div class="settings-section">
+                <h4>Data Export</h4>
+                <p>Download your financial data as PDF reports</p>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin: 1rem 0;">
+                    <button class="btn" onclick="downloadCurrentMonthPDF()">📄 Current Month PDF</button>
+                    <button class="btn" onclick="downloadAllDataPDF()">📊 All Data PDF</button>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h4>Data Management</h4>
+                <p style="color: #dc3545; font-weight: 500;">⚠️ Warning: This action cannot be undone</p>
+                <button class="btn btn-danger" onclick="deleteAllData()">🗑️ Delete All Data</button>
+            </div>
+
+            <div style="margin-top: 2rem; text-align: center;">
+                <button class="btn btn-secondary" onclick="hideModal('settingsModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Global variables
         let currentDate = new Date();
@@ -711,14 +796,225 @@
                 greeting = 'Good evening';
             }
             
-            welcomeElement.innerHTML = `${greeting}, ${name}! Here's your financial overview. <span style="cursor: pointer; text-decoration: underline; opacity: 0.8;" onclick="changeName()" title="Change name">⚙️</span>`;
+            welcomeElement.innerHTML = `${greeting}, ${name}! Here's your financial overview.`;
         }
 
-        function changeName() {
-            const newName = prompt('Enter your name:', localStorage.getItem('userName'));
-            if (newName && newName.trim()) {
-                localStorage.setItem('userName', newName.trim());
-                showWelcomeMessage(newName.trim());
+        // Settings functions
+        function showSettingsModal() {
+            document.getElementById('settingsUserName').value = localStorage.getItem('userName') || '';
+            document.getElementById('settingsModal').style.display = 'block';
+        }
+
+        function updateUserName() {
+            const newName = document.getElementById('settingsUserName').value.trim();
+            if (newName) {
+                localStorage.setItem('userName', newName);
+                showWelcomeMessage(newName);
+                alert('Name updated successfully!');
+            } else {
+                alert('Please enter a valid name.');
+            }
+        }
+
+        function downloadCurrentMonthPDF() {
+            const monthKey = getCurrentMonthKey();
+            const monthName = currentDate.toLocaleDateString('en-GB', { year: 'numeric', month: 'long' });
+            generatePDF(monthName, [monthKey]);
+        }
+
+        function downloadAllDataPDF() {
+            const allKeys = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('financeData_')) {
+                    allKeys.push(key.replace('financeData_', ''));
+                }
+            }
+            
+            if (allKeys.length === 0) {
+                alert('No financial data found to export.');
+                return;
+            }
+            
+            generatePDF('All Financial Data', allKeys.sort());
+        }
+
+        function generatePDF(title, monthKeys) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Title
+            doc.setFontSize(20);
+            doc.setFont(undefined, 'bold');
+            doc.text(title, 20, 30);
+            
+            // User name and date
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'normal');
+            const userName = localStorage.getItem('userName') || 'User';
+            doc.text(`Generated for: ${userName}`, 20, 45);
+            doc.text(`Generated on: ${new Date().toLocaleDateString('en-GB')}`, 20, 55);
+            
+            let yPosition = 75;
+            
+            monthKeys.forEach(monthKey => {
+                const data = localStorage.getItem(`financeData_${monthKey}`);
+                if (!data) return;
+                
+                const parsed = JSON.parse(data);
+                const [year, month] = monthKey.split('-');
+                const monthName = new Date(year, month - 1).toLocaleDateString('en-GB', { year: 'numeric', month: 'long' });
+                
+                // Month header
+                if (yPosition > 250) {
+                    doc.addPage();
+                    yPosition = 30;
+                }
+                
+                doc.setFontSize(16);
+                doc.setFont(undefined, 'bold');
+                doc.text(monthName, 20, yPosition);
+                yPosition += 15;
+                
+                // Calculate totals
+                let totalIncome = 0;
+                let totalExpenses = 0;
+                let pendingIncome = 0;
+                let pendingPayments = 0;
+                
+                // Income
+                if (parsed.income && parsed.income.length > 0) {
+                    doc.setFontSize(14);
+                    doc.setFont(undefined, 'bold');
+                    doc.text('Income:', 20, yPosition);
+                    yPosition += 8;
+                    
+                    doc.setFontSize(10);
+                    doc.setFont(undefined, 'normal');
+                    
+                    parsed.income.forEach(item => {
+                        if (yPosition > 280) {
+                            doc.addPage();
+                            yPosition = 30;
+                        }
+                        
+                        const amount = parseFloat(item.amount);
+                        const status = item.status === 'Paid' ? item.status : (new Date(item.dueDate) < new Date() ? 'Overdue' : 'Pending');
+                        
+                        if (status === 'Paid') {
+                            totalIncome += amount;
+                        } else {
+                            pendingIncome += amount;
+                        }
+                        
+                        doc.text(`• ${item.source} - ${item.paymentType} - ${formatCurrency(amount)} (${status})`, 25, yPosition);
+                        yPosition += 6;
+                    });
+                    yPosition += 5;
+                }
+                
+                // Bills
+                if (parsed.bills && parsed.bills.length > 0) {
+                    doc.setFontSize(14);
+                    doc.setFont(undefined, 'bold');
+                    doc.text('Bills & Fixed Expenses:', 20, yPosition);
+                    yPosition += 8;
+                    
+                    doc.setFontSize(10);
+                    doc.setFont(undefined, 'normal');
+                    
+                    parsed.bills.forEach(item => {
+                        if (yPosition > 280) {
+                            doc.addPage();
+                            yPosition = 30;
+                        }
+                        
+                        const amount = parseFloat(item.amount);
+                        const status = item.status === 'Paid' ? item.status : (new Date(item.date) < new Date() ? 'Overdue' : 'Pending');
+                        
+                        if (status === 'Paid') {
+                            totalExpenses += amount;
+                        } else {
+                            pendingPayments += amount;
+                        }
+                        
+                        doc.text(`• ${item.name} - ${item.category} - ${formatCurrency(amount)} (${status})`, 25, yPosition);
+                        yPosition += 6;
+                    });
+                    yPosition += 5;
+                }
+                
+                // Variable Expenses
+                if (parsed.expenses && parsed.expenses.length > 0) {
+                    doc.setFontSize(14);
+                    doc.setFont(undefined, 'bold');
+                    doc.text('Variable Expenses:', 20, yPosition);
+                    yPosition += 8;
+                    
+                    doc.setFontSize(10);
+                    doc.setFont(undefined, 'normal');
+                    
+                    parsed.expenses.forEach(item => {
+                        if (yPosition > 280) {
+                            doc.addPage();
+                            yPosition = 30;
+                        }
+                        
+                        const amount = parseFloat(item.amount);
+                        totalExpenses += amount;
+                        
+                        doc.text(`• ${item.category} - ${item.description} - ${formatCurrency(amount)}`, 25, yPosition);
+                        yPosition += 6;
+                    });
+                    yPosition += 5;
+                }
+                
+                // Summary
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'bold');
+                doc.text('Monthly Summary:', 20, yPosition);
+                yPosition += 10;
+                
+                doc.setFont(undefined, 'normal');
+                doc.text(`Total Income: ${formatCurrency(totalIncome)}`, 25, yPosition);
+                yPosition += 6;
+                doc.text(`Total Expenses: ${formatCurrency(totalExpenses)}`, 25, yPosition);
+                yPosition += 6;
+                doc.text(`Net Balance: ${formatCurrency(totalIncome - totalExpenses)}`, 25, yPosition);
+                yPosition += 6;
+                doc.text(`Pending Income: ${formatCurrency(pendingIncome)}`, 25, yPosition);
+                yPosition += 6;
+                doc.text(`Pending Payments: ${formatCurrency(pendingPayments)}`, 25, yPosition);
+                yPosition += 6;
+                doc.text(`Pending Net: ${formatCurrency(pendingIncome - pendingPayments)}`, 25, yPosition);
+                yPosition += 20;
+            });
+            
+            // Save the PDF
+            const fileName = title.includes('All') ? 'All_Financial_Data.pdf' : `Financial_Report_${monthKeys[0]}.pdf`;
+            doc.save(fileName);
+        }
+
+        function deleteAllData() {
+            const confirmMessage = 'Are you sure you want to delete ALL your financial data? This action cannot be undone.\n\nType "DELETE" to confirm:';
+            const userInput = prompt(confirmMessage);
+            
+            if (userInput === 'DELETE') {
+                // Remove all finance data
+                const keysToRemove = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith('financeData_')) {
+                        keysToRemove.push(key);
+                    }
+                }
+                
+                keysToRemove.forEach(key => localStorage.removeItem(key));
+                
+                // Reload the page to show empty state
+                location.reload();
+            } else if (userInput !== null) {
+                alert('Deletion cancelled. You must type "DELETE" exactly to confirm.');
             }
         }
 
