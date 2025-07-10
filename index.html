@@ -13,9 +13,10 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f8f9fa;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             color: #333;
             line-height: 1.6;
+            min-height: 100vh;
         }
 
         .container {
@@ -31,33 +32,47 @@
             border-radius: 12px;
             margin-bottom: 2rem;
             text-align: center;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
         }
 
         .header h1 {
             font-size: 2rem;
             margin-bottom: 0.5rem;
+            font-weight: 600;
         }
 
         .month-selector {
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
+            max-width: 300px;
+            margin: 1rem auto 0;
             gap: 1rem;
-            margin-top: 1rem;
         }
 
         .month-selector button {
             background: rgba(255,255,255,0.2);
             border: none;
             color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
+            padding: 0.7rem 1.2rem;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            min-width: 80px;
         }
 
         .month-selector button:hover {
             background: rgba(255,255,255,0.3);
+            transform: translateY(-1px);
+        }
+
+        .month-selector span {
+            font-size: 1.1rem;
+            font-weight: 500;
+            flex: 1;
+            text-align: center;
         }
 
         .dashboard {
@@ -69,22 +84,30 @@
 
         .stat-card {
             background: white;
-            padding: 1.5rem;
+            padding: 1.2rem;
             border-radius: 12px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid #f0f0f0;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
         }
 
         .stat-card h3 {
             color: #666;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-bottom: 0.5rem;
+            font-weight: 600;
         }
 
         .stat-card .amount {
-            font-size: 1.8rem;
+            font-size: 1.4rem;
             font-weight: bold;
             color: #333;
         }
@@ -99,6 +122,7 @@
             border-radius: 12px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             overflow: hidden;
+            border: 1px solid #f0f0f0;
         }
 
         .section-header {
@@ -106,7 +130,7 @@
             padding: 1.5rem;
             border-bottom: 1px solid #e9ecef;
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 1rem;
@@ -115,6 +139,7 @@
         .section-header h2 {
             color: #333;
             font-size: 1.3rem;
+            font-weight: 600;
         }
 
         .section-content {
@@ -161,27 +186,34 @@
             cursor: pointer;
             font-size: 1rem;
             font-weight: 500;
-            transition: background 0.3s;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
         }
 
         .btn:hover {
             background: #5a6fd8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
         }
 
         .btn-secondary {
             background: #6c757d;
+            box-shadow: 0 2px 4px rgba(108, 117, 125, 0.2);
         }
 
         .btn-secondary:hover {
             background: #545b62;
+            box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
         }
 
         .btn-danger {
             background: #dc3545;
+            box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
         }
 
         .btn-danger:hover {
             background: #c82333;
+            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
         }
 
         .btn-small {
@@ -198,12 +230,18 @@
             border: 1px solid #e9ecef;
             border-radius: 8px;
             padding: 1rem;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .item:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-color: #dee2e6;
         }
 
         .item-info {
@@ -214,6 +252,7 @@
         .item-info h4 {
             margin-bottom: 0.25rem;
             color: #333;
+            font-weight: 600;
         }
 
         .item-info p {
@@ -230,6 +269,7 @@
         .item-actions {
             display: flex;
             gap: 0.5rem;
+            flex-wrap: wrap;
         }
 
         .income-item .item-amount { color: #28a745; }
@@ -240,7 +280,7 @@
             padding: 0.25rem 0.75rem;
             border-radius: 12px;
             font-size: 0.8rem;
-            font-weight: 500;
+            font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -248,16 +288,19 @@
         .status-paid {
             background: #d4edda;
             color: #155724;
+            border: 1px solid #c3e6cb;
         }
 
         .status-pending {
             background: #fff3cd;
             color: #856404;
+            border: 1px solid #ffeaa7;
         }
 
         .status-overdue {
             background: #f8d7da;
             color: #721c24;
+            border: 1px solid #f5c6cb;
         }
 
         @media (max-width: 1024px) and (min-width: 769px) {
@@ -268,24 +311,50 @@
 
         @media (max-width: 768px) {
             .container {
-                padding: 10px;
+                padding: 15px;
             }
 
             .header {
                 padding: 1.5rem;
+                margin-bottom: 1.5rem;
             }
 
             .header h1 {
-                font-size: 1.5rem;
+                font-size: 1.4rem;
             }
 
             .month-selector {
-                flex-direction: column;
-                gap: 0.5rem;
+                max-width: 280px;
+                margin: 1rem auto 0;
+            }
+
+            .month-selector button {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+                min-width: 70px;
+            }
+
+            .month-selector span {
+                font-size: 1rem;
             }
 
             .dashboard {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.8rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .stat-card h3 {
+                font-size: 0.7rem;
+                margin-bottom: 0.4rem;
+            }
+
+            .stat-card .amount {
+                font-size: 1.1rem;
             }
 
             .form-row {
@@ -300,11 +369,18 @@
 
             .item-actions {
                 justify-content: center;
+                gap: 0.5rem;
+                margin-top: 0.5rem;
             }
 
             .section-header {
                 flex-direction: column;
                 align-items: stretch;
+                gap: 1rem;
+            }
+
+            .section {
+                margin-bottom: 1.5rem;
             }
 
             .modal-content {
@@ -316,6 +392,11 @@
 
             .modal h3 {
                 margin-bottom: 1rem;
+            }
+
+            .btn-small {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
             }
         }
 
@@ -468,11 +549,11 @@
                 </div>
                 <div class="form-group">
                     <label>Due Date</label>
-                    <input type="text" id="incomeDueDate" placeholder="dd/mm/yyyy" pattern="\d{2}/\d{2}/\d{4}" required>
+                    <input type="date" id="incomeDueDate" required>
                 </div>
                 <div class="form-group">
                     <label>Payment Date (if received)</label>
-                    <input type="text" id="incomeDate" placeholder="dd/mm/yyyy" pattern="\d{2}/\d{2}/\d{4}">
+                    <input type="date" id="incomeDate">
                 </div>
                 <div class="form-group">
                     <label>Status</label>
@@ -517,7 +598,7 @@
                 </div>
                 <div class="form-group">
                     <label>Due Date</label>
-                    <input type="text" id="billDate" placeholder="dd/mm/yyyy" pattern="\d{2}/\d{2}/\d{4}" required>
+                    <input type="date" id="billDate" required>
                 </div>
                 <div class="form-group">
                     <label>Status</label>
@@ -563,7 +644,7 @@
                 </div>
                 <div class="form-group">
                     <label>Date</label>
-                    <input type="text" id="expenseDate" placeholder="dd/mm/yyyy" pattern="\d{2}/\d{2}/\d{4}" required>
+                    <input type="date" id="expenseDate" required>
                 </div>
                 <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
                     <button type="submit" class="btn">Add Expense</button>
@@ -593,7 +674,7 @@
 
         function updateCurrentMonth() {
             const options = { year: 'numeric', month: 'long' };
-            document.getElementById('currentMonth').textContent = currentDate.toLocaleDateString('pt-BR', options);
+            document.getElementById('currentMonth').textContent = currentDate.toLocaleDateString('en-GB', options);
         }
 
         function getCurrentMonthKey() {
@@ -683,27 +764,20 @@
         }
 
         function formatDateForInput(date) {
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
             const year = date.getFullYear();
-            return `${day}/${month}/${year}`;
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
         }
 
         function convertDateFromInput(dateString) {
-            if (!dateString) return '';
-            const parts = dateString.split('/');
-            if (parts.length === 3) {
-                const day = parts[0];
-                const month = parts[1];
-                const year = parts[2];
-                return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-            }
+            // Date inputs return YYYY-MM-DD format, which is what we store internally
             return dateString;
         }
 
         function convertDateToInput(dateString) {
-            if (!dateString) return '';
-            return formatDate(dateString);
+            // Convert from internal YYYY-MM-DD to input format (same)
+            return dateString;
         }
 
         // Modal functions
@@ -749,8 +823,8 @@
                 description: document.getElementById('incomeDescription').value,
                 paymentType: document.getElementById('paymentType').value,
                 amount: parseFloat(document.getElementById('incomeAmount').value),
-                dueDate: convertDateFromInput(document.getElementById('incomeDueDate').value),
-                date: convertDateFromInput(document.getElementById('incomeDate').value),
+                dueDate: document.getElementById('incomeDueDate').value,
+                date: document.getElementById('incomeDate').value,
                 status: document.getElementById('incomeStatus').value
             };
 
@@ -773,7 +847,7 @@
                 name: document.getElementById('billName').value,
                 category: document.getElementById('billCategory').value,
                 amount: parseFloat(document.getElementById('billAmount').value),
-                date: convertDateFromInput(document.getElementById('billDate').value),
+                date: document.getElementById('billDate').value,
                 status: document.getElementById('billStatus').value
             };
 
@@ -796,7 +870,7 @@
                 category: document.getElementById('expenseCategory').value,
                 description: document.getElementById('expenseDescription').value,
                 amount: parseFloat(document.getElementById('expenseAmount').value),
-                date: convertDateFromInput(document.getElementById('expenseDate').value)
+                date: document.getElementById('expenseDate').value
             };
 
             if (editingItem) {
@@ -1073,15 +1147,16 @@
             
             // Set payment date to today if it's an income item
             if (type === 'income') {
-                const today = new Date().toISOString().split('T')[0];
-                element.dataset.date = today;
+                const today = new Date();
+                const todayISO = today.toISOString().split('T')[0];
+                element.dataset.date = todayISO;
                 
                 // Update the display to show payment date
                 const itemInfo = element.querySelector('.item-info p');
                 const currentText = itemInfo.textContent;
                 if (!currentText.includes('Paid:')) {
                     const beforeBadge = currentText.substring(0, currentText.indexOf('Pending') || currentText.indexOf('Overdue'));
-                    itemInfo.innerHTML = beforeBadge + ` | Paid: ${formatDate(today)} <span class="status-badge status-paid">Paid</span>`;
+                    itemInfo.innerHTML = beforeBadge + ` | Paid: ${formatDate(todayISO)} <span class="status-badge status-paid">Paid</span>`;
                 }
             } else {
                 // Update the status badge for bills
