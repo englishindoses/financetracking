@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Freelance Teacher Finance Tracker</title>
+    <title>Personal Finance Tracker</title>
     <style>
         * {
             margin: 0;
@@ -39,6 +39,13 @@
             font-size: 2rem;
             margin-bottom: 0.5rem;
             font-weight: 600;
+        }
+
+        .welcome-message {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            opacity: 0.9;
+            font-weight: 400;
         }
 
         .month-selector {
@@ -80,6 +87,9 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 1rem;
             margin-bottom: 2rem;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .stat-card {
@@ -306,6 +316,7 @@
         @media (max-width: 1024px) and (min-width: 769px) {
             .dashboard {
                 grid-template-columns: repeat(2, 1fr);
+                max-width: 600px;
             }
         }
 
@@ -321,6 +332,11 @@
 
             .header h1 {
                 font-size: 1.4rem;
+            }
+
+            .welcome-message {
+                font-size: 1rem;
+                margin-bottom: 0.8rem;
             }
 
             .month-selector {
@@ -342,6 +358,7 @@
                 grid-template-columns: repeat(3, 1fr);
                 gap: 0.8rem;
                 margin-bottom: 1.5rem;
+                max-width: 100%;
             }
 
             .stat-card {
@@ -444,7 +461,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>💰 Freelance Teacher Finance Tracker</h1>
+            <h1>💰 Personal Finance Tracker</h1>
+            <div id="welcomeMessage" class="welcome-message"></div>
             <div class="month-selector">
                 <button onclick="changeMonth(-1)">← Previous</button>
                 <span id="currentMonth"></span>
@@ -513,6 +531,23 @@
         </div>
     </div>
 
+    <!-- Name Setup Modal -->
+    <div id="nameModal" class="modal" style="display: block;">
+        <div class="modal-content">
+            <h3>Welcome to Your Personal Finance Tracker!</h3>
+            <p>Let's start by setting up your profile.</p>
+            <form id="nameForm">
+                <div class="form-group">
+                    <label>What's your name?</label>
+                    <input type="text" id="userName" placeholder="Enter your name" required>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="submit" class="btn">Get Started</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Income Modal -->
     <div id="incomeModal" class="modal">
         <div class="modal-content">
@@ -521,12 +556,7 @@
             <form id="incomeForm">
                 <div class="form-group">
                     <label>Source</label>
-                    <select id="incomeSource" required>
-                        <option value="">Select source</option>
-                        <option value="Cambly">Cambly (Weekly)</option>
-                        <option value="Student">Student Payment</option>
-                        <option value="Other">Other</option>
-                    </select>
+                    <input type="text" id="incomeSource" placeholder="e.g. Cambly, Student name, Company" required>
                 </div>
                 <div class="form-group">
                     <label>Description (Who paid you - optional)</label>
@@ -661,8 +691,55 @@
 
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
+            checkUserName();
             updateCurrentMonth();
             loadDataAndCheckOverdue();
+        });
+
+        // User name management
+        function checkUserName() {
+            const userName = localStorage.getItem('userName');
+            if (userName) {
+                showWelcomeMessage(userName);
+                document.getElementById('nameModal').style.display = 'none';
+            } else {
+                document.getElementById('nameModal').style.display = 'block';
+            }
+        }
+
+        function showWelcomeMessage(name) {
+            const welcomeElement = document.getElementById('welcomeMessage');
+            const currentHour = new Date().getHours();
+            let greeting;
+            
+            if (currentHour < 12) {
+                greeting = 'Good morning';
+            } else if (currentHour < 17) {
+                greeting = 'Good afternoon';
+            } else {
+                greeting = 'Good evening';
+            }
+            
+            welcomeElement.innerHTML = `${greeting}, ${name}! Here's your financial overview. <span style="cursor: pointer; text-decoration: underline; opacity: 0.8;" onclick="changeName()" title="Change name">⚙️</span>`;
+        }
+
+        function changeName() {
+            const newName = prompt('Enter your name:', localStorage.getItem('userName'));
+            if (newName && newName.trim()) {
+                localStorage.setItem('userName', newName.trim());
+                showWelcomeMessage(newName.trim());
+            }
+        }
+
+        // Name form submission
+        document.getElementById('nameForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('userName').value.trim();
+            if (name) {
+                localStorage.setItem('userName', name);
+                showWelcomeMessage(name);
+                document.getElementById('nameModal').style.display = 'none';
+            }
         });
 
         // Month navigation
@@ -1223,7 +1300,8 @@
         window.addEventListener('click', function(event) {
             const modals = document.querySelectorAll('.modal');
             modals.forEach(modal => {
-                if (event.target === modal) {
+                // Don't close name modal by clicking outside - it's required
+                if (event.target === modal && modal.id !== 'nameModal') {
                     modal.style.display = 'none';
                     editingItem = null;
                 }
