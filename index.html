@@ -20,7 +20,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -87,9 +87,6 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 1rem;
             margin-bottom: 2rem;
-            max-width: 900px;
-            margin-left: auto;
-            margin-right: auto;
         }
 
         .stat-card {
@@ -316,7 +313,6 @@
         @media (max-width: 1024px) and (min-width: 769px) {
             .dashboard {
                 grid-template-columns: repeat(2, 1fr);
-                max-width: 600px;
             }
         }
 
@@ -358,7 +354,6 @@
                 grid-template-columns: repeat(3, 1fr);
                 gap: 0.8rem;
                 margin-bottom: 1.5rem;
-                max-width: 100%;
             }
 
             .stat-card {
@@ -557,10 +552,6 @@
                 <div class="form-group">
                     <label>Source</label>
                     <input type="text" id="incomeSource" placeholder="e.g. Cambly, Student name, Company" required>
-                </div>
-                <div class="form-group">
-                    <label>Description (Who paid you - optional)</label>
-                    <input type="text" id="incomeDescription">
                 </div>
                 <div class="form-group">
                     <label>Payment Type</label>
@@ -791,7 +782,6 @@
             return Array.from(items).map(item => ({
                 id: item.dataset.id,
                 source: item.dataset.source,
-                description: item.dataset.description,
                 paymentType: item.dataset.paymenttype,
                 amount: parseFloat(item.dataset.amount),
                 dueDate: item.dataset.duedate,
@@ -897,7 +887,6 @@
             const data = {
                 id: editingItem ? editingItem.dataset.id : Date.now().toString(),
                 source: document.getElementById('incomeSource').value,
-                description: document.getElementById('incomeDescription').value,
                 paymentType: document.getElementById('paymentType').value,
                 amount: parseFloat(document.getElementById('incomeAmount').value),
                 dueDate: document.getElementById('incomeDueDate').value,
@@ -978,7 +967,6 @@
             item.className = 'item income-item';
             item.dataset.id = data.id;
             item.dataset.source = data.source;
-            item.dataset.description = data.description;
             item.dataset.paymenttype = data.paymentType;
             item.dataset.amount = data.amount;
             item.dataset.duedate = data.dueDate;
@@ -1000,11 +988,10 @@
                 `<button class="btn btn-small" onclick="markAsPaid(this.parentElement.parentElement, 'income')" style="background: #28a745;">Paid</button>` : '';
             
             const paymentDateText = data.date ? ` | Paid: ${formatDate(data.date)}` : '';
-            const descriptionText = data.description ? ` - ${data.description}` : '';
 
             item.innerHTML = `
                 <div class="item-info">
-                    <h4>${data.source}${descriptionText}</h4>
+                    <h4>${data.source}</h4>
                     <p>${data.paymentType} | Due: ${formatDate(data.dueDate)}${paymentDateText} <span class="status-badge status-${displayStatus.toLowerCase()}">${displayStatus}</span></p>
                 </div>
                 <div class="item-amount">${formatCurrency(data.amount)}</div>
@@ -1126,7 +1113,6 @@
         function editIncome(element) {
             editingItem = element;
             document.getElementById('incomeSource').value = element.dataset.source;
-            document.getElementById('incomeDescription').value = element.dataset.description;
             document.getElementById('paymentType').value = element.dataset.paymenttype;
             document.getElementById('incomeAmount').value = element.dataset.amount;
             document.getElementById('incomeDueDate').value = element.dataset.duedate;
