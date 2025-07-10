@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freelance Teacher Finance Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .month-selector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .month-selector button {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .month-selector button:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: #666;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .amount {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .stat-card.income .amount { color: #28a745; }
+        .stat-card.expense .amount { color: #dc3545; }
+        .stat-card.balance .amount { color: #667eea; }
+
+        .section {
+            background: white;
+            margin-bottom: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .section-header h2 {
+            color: #333;
+            font-size: 1.3rem;
+        }
+
+        .section-content {
+            padding: 1.5rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #5a6fd8;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .items-list {
+            margin-top: 1.5rem;
+        }
+
+        .item {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .item-info {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .item-info h4 {
+            margin-bottom: 0.25rem;
+            color: #333;
+        }
+
+        .item-info p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .item-amount {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .income-item .item-amount { color: #28a745; }
+        .expense-item .item-amount { color: #dc3545; }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-paid {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-overdue {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .dashboard {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 1.5rem;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .month-selector {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .item {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+
+            .item-actions {
+                justify-content: center;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .modal-content {
+                margin: 1% auto;
+                padding: 1rem;
+                width: 95%;
+                max-height: 95vh;
+            }
+
+            .modal h3 {
+                margin-bottom: 1rem;
+            }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 1% auto;
+            padding: 1.5rem;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .modal h3 {
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Freelance Teacher Finance Tracker</h1>
+            <div class="month-selector">
+                <button onclick="changeMonth(-1)">← Previous</button>
+                <span id="currentMonth"></span>
+                <button onclick="changeMonth(1)">Next →</button>
+            </div>
+        </div>
+
+        <div class="dashboard">
+            <div class="stat-card income">
+                <h3>Total Income</h3>
+                <div class="amount" id="totalIncome">R$ 0,00</div>
+            </div>
+            <div class="stat-card expense">
+                <h3>Total Expenses</h3>
+                <div class="amount" id="totalExpenses">R$ 0,00</div>
+            </div>
+            <div class="stat-card balance">
+                <h3>Net Balance</h3>
+                <div class="amount" id="netBalance">R$ 0,00</div>
+            </div>
+            <div class="stat-card income">
+                <h3>Pending Income</h3>
+                <div class="amount" id="pendingIncome">R$ 0,00</div>
+            </div>
+            <div class="stat-card expense">
+                <h3>Pending Payments</h3>
+                <div class="amount" id="pendingPayments">R$ 0,00</div>
+            </div>
+            <div class="stat-card balance">
+                <h3>Pending Net</h3>
+                <div class="amount" id="pendingNet">R$ 0,00</div>
+            </div>
+        </div>
+
+        <!-- Income Section -->
+        <div class="section">
+            <div class="section-header">
+                <h2>📈 Income Tracking</h2>
+                <button class="btn" onclick="showIncomeModal()">Add Income</button>
+            </div>
+            <div class="section-content">
+                <div class="items-list" id="incomeList"></div>
+            </div>
+        </div>
+
+        <!-- Bills Section -->
+        <div class="section">
+            <div class="section-header">
+                <h2>📄 Bills & Fixed Expenses</h2>
+                <button class="btn" onclick="showBillModal()">Add Bill</button>
+            </div>
+            <div class="section-content">
+                <div class="items-list" id="billsList"></div>
+            </div>
+        </div>
+
+        <!-- Expenses Section -->
+        <div class="section">
+            <div class="section-header">
+                <h2>💸 Variable Expenses</h2>
+                <button class="btn" onclick="showExpenseModal()">Add Expense</button>
+            </div>
+            <div class="section-content">
+                <div class="items-list" id="expensesList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Income Modal -->
+    <div id="incomeModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="hideModal('incomeModal')">&times;</button>
+            <h3>Add Income</h3>
+            <form id="incomeForm">
+                <div class="form-group">
+                    <label>Source</label>
+                    <select id="incomeSource" required>
+                        <option value="">Select source</option>
+                        <option value="Cambly">Cambly (Weekly)</option>
+                        <option value="Student">Student Payment</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Description (Who paid you - optional)</label>
+                    <input type="text" id="incomeDescription">
+                </div>
+                <div class="form-group">
+                    <label>Payment Type</label>
+                    <select id="paymentType" required>
+                        <option value="">Select type</option>
+                        <option value="Weekly">Weekly</option>
+                        <option value="Monthly">Monthly</option>
+                        <option value="Per Lesson">Per Lesson</option>
+                        <option value="Package">Package/Block</option>
+                        <option value="One-time">One-time</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Amount (R$)</label>
+                    <input type="number" id="incomeAmount" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Due Date</label>
+                    <input type="text" id="incomeDueDate" placeholder="dd/mm/yyyy" pattern="\d{2}/\d{2}/\d{4}" required>
+                </div>
+                <div class="form-group">
+                    <label>Payment Date (if received)</label>
+                    <input type="text" id="incomeDate" placeholder="dd/mm/yyyy" pattern="\d{2}/\d{2}/\d{4}">
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="incomeStatus" required>
+                        <option value="Pending">Pending</option>
+                        <option value="Paid">Paid</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="submit" class="btn">Add Income</button>
+                    <button type="button" class="btn btn-secondary" onclick="hideModal('incomeModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bill Modal -->
+    <div id="billModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="hideModal('billModal')">&times;</button>
+            <h3>Add Bill</h3>
+            <form id="billForm">
+                <div class="form-group">
+                    <label>Bill Name</label>
+                    <input type="text" id="billName" required>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="billCategory" required>
+                        <option value="">Select category</option>
+                        <option value="Housing">Housing (Rent/Mortgage)</option>
+                        <option value="Utilities">Utilities</option>
+                        <option value="Insurance">Insurance</option>
+                        <option value="Loans">Loans/Credit Cards</option>
+                        <option value="Subscriptions">Subscriptions</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Amount (R$)</label>
+                    <input type="number" id="billAmount" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Due Date</label>
+                    <input type="text" id="billDate" placeholder="dd/mm/yyyy" pattern="\d{2}/\d{2}/\d{4}" required>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="billStatus" required>
+                        <option value="Pending">Pending</option>
+                        <option value="Paid">Paid</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="submit" class="btn">Add Bill</button>
+                    <button type="button" class="btn btn-secondary" onclick="hideModal('billModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Expense Modal -->
+    <div id="expenseModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="hideModal('expenseModal')">&times;</button>
+            <h3>Add Expense</h3>
+            <form id="expenseForm">
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="expenseCategory" required>
+                        <option value="">Select category</option>
+                        <option value="Food">Food & Groceries</option>
+                        <option value="Transportation">Transportation</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Health">Health & Medical</option>
+                        <option value="Education">Education & Learning</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" id="expenseDescription" required>
+                </div>
+                <div class="form-group">
+                    <label>Amount (R$)</label>
+                    <input type="number" id="expenseAmount" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="text" id="expenseDate" placeholder="dd/mm/yyyy" pattern="\d{2}/\d{2}/\d{4}" required>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="submit" class="btn">Add Expense</button>
+                    <button type="button" class="btn btn-secondary" onclick="hideModal('expenseModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentDate = new Date();
+        let editingItem = null;
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCurrentMonth();
+            loadDataAndCheckOverdue();
+        });
+
+        // Month navigation
+        function changeMonth(direction) {
+            currentDate.setMonth(currentDate.getMonth() + direction);
+            updateCurrentMonth();
+            loadDataAndCheckOverdue();
+        }
+
+        function updateCurrentMonth() {
+            const options = { year: 'numeric', month: 'long' };
+            document.getElementById('currentMonth').textContent = currentDate.toLocaleDateString('pt-BR', options);
+        }
+
+        function getCurrentMonthKey() {
+            return `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+        }
+
+        // Data management
+        function saveData() {
+            const monthKey = getCurrentMonthKey();
+            const data = {
+                income: getIncomeData(),
+                bills: getBillData(),
+                expenses: getExpenseData()
+            };
+            localStorage.setItem(`financeData_${monthKey}`, JSON.stringify(data));
+        }
+
+        function loadData() {
+            const monthKey = getCurrentMonthKey();
+            const data = localStorage.getItem(`financeData_${monthKey}`);
+            
+            if (data) {
+                const parsed = JSON.parse(data);
+                renderIncome(parsed.income || []);
+                renderBills(parsed.bills || []);
+                renderExpenses(parsed.expenses || []);
+            } else {
+                // Clear all lists for new month
+                renderIncome([]);
+                renderBills([]);
+                renderExpenses([]);
+            }
+        }
+
+        function getIncomeData() {
+            const items = document.querySelectorAll('#incomeList .item');
+            return Array.from(items).map(item => ({
+                id: item.dataset.id,
+                source: item.dataset.source,
+                description: item.dataset.description,
+                paymentType: item.dataset.paymenttype,
+                amount: parseFloat(item.dataset.amount),
+                dueDate: item.dataset.duedate,
+                date: item.dataset.date,
+                status: item.dataset.status
+            }));
+        }
+
+        function getBillData() {
+            const items = document.querySelectorAll('#billsList .item');
+            return Array.from(items).map(item => ({
+                id: item.dataset.id,
+                name: item.dataset.name,
+                category: item.dataset.category,
+                amount: parseFloat(item.dataset.amount),
+                date: item.dataset.date,
+                status: item.dataset.status
+            }));
+        }
+
+        function getExpenseData() {
+            const items = document.querySelectorAll('#expensesList .item');
+            return Array.from(items).map(item => ({
+                id: item.dataset.id,
+                category: item.dataset.category,
+                description: item.dataset.description,
+                amount: parseFloat(item.dataset.amount),
+                date: item.dataset.date
+            }));
+        }
+
+        // Formatting functions
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(amount);
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString + 'T00:00:00');
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        function formatDateForInput(date) {
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        function convertDateFromInput(dateString) {
+            if (!dateString) return '';
+            const parts = dateString.split('/');
+            if (parts.length === 3) {
+                const day = parts[0];
+                const month = parts[1];
+                const year = parts[2];
+                return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+            }
+            return dateString;
+        }
+
+        function convertDateToInput(dateString) {
+            if (!dateString) return '';
+            return formatDate(dateString);
+        }
+
+        // Modal functions
+        function showIncomeModal() {
+            editingItem = null;
+            document.getElementById('incomeForm').reset();
+            const today = new Date();
+            const todayFormatted = formatDateForInput(today);
+            document.getElementById('incomeDueDate').value = todayFormatted;
+            document.getElementById('incomeModal').style.display = 'block';
+        }
+
+        function showBillModal() {
+            editingItem = null;
+            document.getElementById('billForm').reset();
+            const today = new Date();
+            const todayFormatted = formatDateForInput(today);
+            document.getElementById('billDate').value = todayFormatted;
+            document.getElementById('billModal').style.display = 'block';
+        }
+
+        function showExpenseModal() {
+            editingItem = null;
+            document.getElementById('expenseForm').reset();
+            const today = new Date();
+            const todayFormatted = formatDateForInput(today);
+            document.getElementById('expenseDate').value = todayFormatted;
+            document.getElementById('expenseModal').style.display = 'block';
+        }
+
+        function hideModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            editingItem = null;
+        }
+
+        // Form submissions
+        document.getElementById('incomeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const data = {
+                id: editingItem ? editingItem.dataset.id : Date.now().toString(),
+                source: document.getElementById('incomeSource').value,
+                description: document.getElementById('incomeDescription').value,
+                paymentType: document.getElementById('paymentType').value,
+                amount: parseFloat(document.getElementById('incomeAmount').value),
+                dueDate: convertDateFromInput(document.getElementById('incomeDueDate').value),
+                date: convertDateFromInput(document.getElementById('incomeDate').value),
+                status: document.getElementById('incomeStatus').value
+            };
+
+            if (editingItem) {
+                updateIncomeItem(editingItem, data);
+            } else {
+                addIncomeItem(data);
+            }
+
+            hideModal('incomeModal');
+            saveData();
+            updateDashboard();
+        });
+
+        document.getElementById('billForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const data = {
+                id: editingItem ? editingItem.dataset.id : Date.now().toString(),
+                name: document.getElementById('billName').value,
+                category: document.getElementById('billCategory').value,
+                amount: parseFloat(document.getElementById('billAmount').value),
+                date: convertDateFromInput(document.getElementById('billDate').value),
+                status: document.getElementById('billStatus').value
+            };
+
+            if (editingItem) {
+                updateBillItem(editingItem, data);
+            } else {
+                addBillItem(data);
+            }
+
+            hideModal('billModal');
+            saveData();
+            updateDashboard();
+        });
+
+        document.getElementById('expenseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const data = {
+                id: editingItem ? editingItem.dataset.id : Date.now().toString(),
+                category: document.getElementById('expenseCategory').value,
+                description: document.getElementById('expenseDescription').value,
+                amount: parseFloat(document.getElementById('expenseAmount').value),
+                date: convertDateFromInput(document.getElementById('expenseDate').value)
+            };
+
+            if (editingItem) {
+                updateExpenseItem(editingItem, data);
+            } else {
+                addExpenseItem(data);
+            }
+
+            hideModal('expenseModal');
+            saveData();
+            updateDashboard();
+        });
+
+        // Render functions
+        function addIncomeItem(data) {
+            const incomeList = document.getElementById('incomeList');
+            const item = createIncomeElement(data);
+            incomeList.appendChild(item);
+        }
+
+        function updateIncomeItem(element, data) {
+            const newElement = createIncomeElement(data);
+            element.parentNode.replaceChild(newElement, element);
+        }
+
+        function createIncomeElement(data) {
+            const item = document.createElement('div');
+            item.className = 'item income-item';
+            item.dataset.id = data.id;
+            item.dataset.source = data.source;
+            item.dataset.description = data.description;
+            item.dataset.paymenttype = data.paymentType;
+            item.dataset.amount = data.amount;
+            item.dataset.duedate = data.dueDate;
+            item.dataset.date = data.date || '';
+            item.dataset.status = data.status;
+
+            // Auto-determine display status
+            let displayStatus = data.status;
+            if (data.status !== 'Paid') {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const dueDate = new Date(data.dueDate + 'T00:00:00');
+                if (dueDate < today) {
+                    displayStatus = 'Overdue';
+                }
+            }
+
+            const paidButton = displayStatus !== 'Paid' ? 
+                `<button class="btn btn-small" onclick="markAsPaid(this.parentElement.parentElement, 'income')" style="background: #28a745;">Paid</button>` : '';
+            
+            const paymentDateText = data.date ? ` | Paid: ${formatDate(data.date)}` : '';
+            const descriptionText = data.description ? ` - ${data.description}` : '';
+
+            item.innerHTML = `
+                <div class="item-info">
+                    <h4>${data.source}${descriptionText}</h4>
+                    <p>${data.paymentType} | Due: ${formatDate(data.dueDate)}${paymentDateText} <span class="status-badge status-${displayStatus.toLowerCase()}">${displayStatus}</span></p>
+                </div>
+                <div class="item-amount">${formatCurrency(data.amount)}</div>
+                <div class="item-actions">
+                    ${paidButton}
+                    <button class="btn btn-small btn-secondary" onclick="editIncome(this.parentElement.parentElement)">Edit</button>
+                    <button class="btn btn-small btn-danger" onclick="deleteItem(this.parentElement.parentElement)">Delete</button>
+                </div>
+            `;
+
+            return item;
+        }
+
+        function addBillItem(data) {
+            const billsList = document.getElementById('billsList');
+            const item = createBillElement(data);
+            billsList.appendChild(item);
+        }
+
+        function updateBillItem(element, data) {
+            const newElement = createBillElement(data);
+            element.parentNode.replaceChild(newElement, element);
+        }
+
+        function createBillElement(data) {
+            const item = document.createElement('div');
+            item.className = 'item expense-item';
+            item.dataset.id = data.id;
+            item.dataset.name = data.name;
+            item.dataset.category = data.category;
+            item.dataset.amount = data.amount;
+            item.dataset.date = data.date;
+            item.dataset.status = data.status;
+
+            // Auto-determine display status
+            let displayStatus = data.status;
+            if (data.status !== 'Paid') {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const dueDate = new Date(data.date + 'T00:00:00');
+                if (dueDate < today) {
+                    displayStatus = 'Overdue';
+                }
+            }
+
+            const paidButton = displayStatus !== 'Paid' ? 
+                `<button class="btn btn-small" onclick="markAsPaid(this.parentElement.parentElement, 'bill')" style="background: #28a745;">Paid</button>` : '';
+
+            item.innerHTML = `
+                <div class="item-info">
+                    <h4>${data.name} - ${data.category}</h4>
+                    <p>Due: ${formatDate(data.date)} <span class="status-badge status-${displayStatus.toLowerCase()}">${displayStatus}</span></p>
+                </div>
+                <div class="item-amount">${formatCurrency(data.amount)}</div>
+                <div class="item-actions">
+                    ${paidButton}
+                    <button class="btn btn-small btn-secondary" onclick="editBill(this.parentElement.parentElement)">Edit</button>
+                    <button class="btn btn-small btn-danger" onclick="deleteItem(this.parentElement.parentElement)">Delete</button>
+                </div>
+            `;
+
+            return item;
+        }
+
+        function addExpenseItem(data) {
+            const expensesList = document.getElementById('expensesList');
+            const item = createExpenseElement(data);
+            expensesList.appendChild(item);
+        }
+
+        function updateExpenseItem(element, data) {
+            const newElement = createExpenseElement(data);
+            element.parentNode.replaceChild(newElement, element);
+        }
+
+        function createExpenseElement(data) {
+            const item = document.createElement('div');
+            item.className = 'item expense-item';
+            item.dataset.id = data.id;
+            item.dataset.category = data.category;
+            item.dataset.description = data.description;
+            item.dataset.amount = data.amount;
+            item.dataset.date = data.date;
+
+            item.innerHTML = `
+                <div class="item-info">
+                    <h4>${data.category} - ${data.description}</h4>
+                    <p>${formatDate(data.date)}</p>
+                </div>
+                <div class="item-amount">${formatCurrency(data.amount)}</div>
+                <div class="item-actions">
+                    <button class="btn btn-small btn-secondary" onclick="editExpense(this.parentElement.parentElement)">Edit</button>
+                    <button class="btn btn-small btn-danger" onclick="deleteItem(this.parentElement.parentElement)">Delete</button>
+                </div>
+            `;
+
+            return item;
+        }
+
+        function renderIncome(data) {
+            const incomeList = document.getElementById('incomeList');
+            incomeList.innerHTML = '';
+            data.forEach(item => addIncomeItem(item));
+        }
+
+        function renderBills(data) {
+            const billsList = document.getElementById('billsList');
+            billsList.innerHTML = '';
+            data.forEach(item => addBillItem(item));
+        }
+
+        function renderExpenses(data) {
+            const expensesList = document.getElementById('expensesList');
+            expensesList.innerHTML = '';
+            data.forEach(item => addExpenseItem(item));
+        }
+
+        // Edit functions
+        function editIncome(element) {
+            editingItem = element;
+            document.getElementById('incomeSource').value = element.dataset.source;
+            document.getElementById('incomeDescription').value = element.dataset.description;
+            document.getElementById('paymentType').value = element.dataset.paymenttype;
+            document.getElementById('incomeAmount').value = element.dataset.amount;
+            document.getElementById('incomeDueDate').value = element.dataset.duedate;
+            document.getElementById('incomeDate').value = element.dataset.date;
+            document.getElementById('incomeStatus').value = element.dataset.status;
+            document.getElementById('incomeModal').style.display = 'block';
+        }
+
+        function editBill(element) {
+            editingItem = element;
+            document.getElementById('billName').value = element.dataset.name;
+            document.getElementById('billCategory').value = element.dataset.category;
+            document.getElementById('billAmount').value = element.dataset.amount;
+            document.getElementById('billDate').value = element.dataset.date;
+            document.getElementById('billStatus').value = element.dataset.status;
+            document.getElementById('billModal').style.display = 'block';
+        }
+
+        function editExpense(element) {
+            editingItem = element;
+            document.getElementById('expenseCategory').value = element.dataset.category;
+            document.getElementById('expenseDescription').value = element.dataset.description;
+            document.getElementById('expenseAmount').value = element.dataset.amount;
+            document.getElementById('expenseDate').value = element.dataset.date;
+            document.getElementById('expenseModal').style.display = 'block';
+        }
+
+        // Delete function
+        function deleteItem(element) {
+            if (confirm('Are you sure you want to delete this item?')) {
+                element.remove();
+                saveData();
+                updateDashboard();
+            }
+        }
+
+        // Dashboard update
+        function updateDashboard() {
+            const incomeItems = document.querySelectorAll('#incomeList .item');
+            const billItems = document.querySelectorAll('#billsList .item');
+            const expenseItems = document.querySelectorAll('#expensesList .item');
+
+            let totalIncome = 0;
+            let totalExpenses = 0;
+            let pendingIncome = 0;
+            let pendingPayments = 0;
+
+            // Calculate total income (only paid items)
+            incomeItems.forEach(item => {
+                if (item.dataset.status === 'Paid') {
+                    totalIncome += parseFloat(item.dataset.amount);
+                }
+            });
+
+            // Calculate total expenses (bills + variable expenses)
+            billItems.forEach(item => {
+                if (item.dataset.status === 'Paid') {
+                    totalExpenses += parseFloat(item.dataset.amount);
+                }
+            });
+
+            expenseItems.forEach(item => {
+                totalExpenses += parseFloat(item.dataset.amount);
+            });
+
+            // Calculate pending income (money coming in from unpaid income items)
+            incomeItems.forEach(item => {
+                if (item.dataset.status !== 'Paid') {
+                    pendingIncome += parseFloat(item.dataset.amount);
+                }
+            });
+
+            // Calculate pending payments (bills you need to pay)
+            billItems.forEach(item => {
+                if (item.dataset.status !== 'Paid') {
+                    pendingPayments += parseFloat(item.dataset.amount);
+                }
+            });
+
+            const netBalance = totalIncome - totalExpenses;
+            const pendingNet = pendingIncome - pendingPayments;
+
+            // Update dashboard
+            document.getElementById('totalIncome').textContent = formatCurrency(totalIncome);
+            document.getElementById('totalExpenses').textContent = formatCurrency(totalExpenses);
+            document.getElementById('netBalance').textContent = formatCurrency(netBalance);
+            document.getElementById('pendingIncome').textContent = formatCurrency(pendingIncome);
+            document.getElementById('pendingPayments').textContent = formatCurrency(pendingPayments);
+            document.getElementById('pendingNet').textContent = formatCurrency(pendingNet);
+        }
+
+        // Mark item as paid
+        function markAsPaid(element, type) {
+            element.dataset.status = 'Paid';
+            
+            // Set payment date to today if it's an income item
+            if (type === 'income') {
+                const today = new Date().toISOString().split('T')[0];
+                element.dataset.date = today;
+                
+                // Update the display to show payment date
+                const itemInfo = element.querySelector('.item-info p');
+                const currentText = itemInfo.textContent;
+                if (!currentText.includes('Paid:')) {
+                    const beforeBadge = currentText.substring(0, currentText.indexOf('Pending') || currentText.indexOf('Overdue'));
+                    itemInfo.innerHTML = beforeBadge + ` | Paid: ${formatDate(today)} <span class="status-badge status-paid">Paid</span>`;
+                }
+            } else {
+                // Update the status badge for bills
+                const statusBadge = element.querySelector('.status-badge');
+                statusBadge.textContent = 'Paid';
+                statusBadge.className = 'status-badge status-paid';
+            }
+            
+            // Remove the paid button
+            const paidButton = element.querySelector('.item-actions button[onclick*="markAsPaid"]');
+            if (paidButton) {
+                paidButton.remove();
+            }
+            
+            saveData();
+            updateDashboard();
+        }
+
+        // Check for overdue items and update their status
+        function checkOverdueItems() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            // Check income items
+            const incomeItems = document.querySelectorAll('#incomeList .item');
+            incomeItems.forEach(item => {
+                if (item.dataset.status !== 'Paid') {
+                    const dueDate = new Date(item.dataset.duedate + 'T00:00:00');
+                    if (dueDate < today && item.dataset.status !== 'Overdue') {
+                        item.dataset.status = 'Overdue';
+                        const statusBadge = item.querySelector('.status-badge');
+                        statusBadge.textContent = 'Overdue';
+                        statusBadge.className = 'status-badge status-overdue';
+                    }
+                }
+            });
+            
+            // Check bills
+            const billItems = document.querySelectorAll('#billsList .item');
+            billItems.forEach(item => {
+                if (item.dataset.status !== 'Paid') {
+                    const dueDate = new Date(item.dataset.date + 'T00:00:00');
+                    if (dueDate < today && item.dataset.status !== 'Overdue') {
+                        item.dataset.status = 'Overdue';
+                        const statusBadge = item.querySelector('.status-badge');
+                        statusBadge.textContent = 'Overdue';
+                        statusBadge.className = 'status-badge status-overdue';
+                    }
+                }
+            });
+            
+            // Save changes if any items were updated
+            saveData();
+        }
+
+        // Update the loadData function to check for overdue items
+        function loadDataAndCheckOverdue() {
+            loadData();
+            checkOverdueItems();
+            updateDashboard();
+        }
+
+        // Close modals when clicking outside
+        window.addEventListener('click', function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                    editingItem = null;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
